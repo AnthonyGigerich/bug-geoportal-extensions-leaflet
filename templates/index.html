@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='node_modules/leaflet/dist/leaflet.css') }}" />
+    <script src="{{ url_for('static', filename='node_modules/leaflet/dist/leaflet.js') }}"></script>
+
+    <!-- Extension Géoportail pour Leaflet -->
+    <script data-key="essentiels"
+            src="{{ url_for('static', filename='node_modules/geoportal-extensions-leaflet/dist/GpPluginLeaflet.js') }}"></script>
+    <link rel="stylesheet"
+            href="{{ url_for('static', filename='node_modules/geoportal-extensions-leaflet/dist/GpPluginLeaflet-map.css') }}" />
+
+    <title>Hello, World!</title>
+
+    <style>
+        #map {
+            height: 600px;  /* Set the desired height */
+            width: 100%;    /* Set the desired width */
+        }
+    </style>
+</head>
+<body>
+    <h1>Hello, World!</h1>
+    <p>Exemple Minimal du chargement d'une carte :</p>
+    <div id="map"></div>
+    <script>
+        window.onload = function () {
+            // Fetch API key for Geoportal
+            Gp.Services.getConfig({
+                apiKey: "essentiels",
+                onSuccess: function () {
+                    initializeMap();
+                },
+                onFailure: function (error) {
+                    // Handle the error appropriately
+                    console.error("Error initializing map:", error);
+                },
+            });
+        };
+
+        function initializeMap() {
+            var map = L.map("map").setView([48.845, 2.424], 10);
+            map.setMaxZoom(19);
+            map.setMinZoom(8);
+
+            console.log("initializing map");
+
+            var IGNv2 = L.geoportalLayer.WMTS(
+                {
+                    layer: "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2",
+                },
+                {
+                    // leafletParams
+                    opacity: 1,
+                    format: "image/png",
+                    attribution: '&copy; <a href="https://www.geoportail.gouv.fr/">IGN-F/Geoportail</a>',
+                }
+            );
+
+            map.addLayer(IGNv2);
+
+            // création et ajout du controle recherche lieu
+            var searchCtrl = L.geoportalControl.SearchEngine({});
+            map.addControl(searchCtrl);
+        }
+    </script>
+</body>
+</html>
